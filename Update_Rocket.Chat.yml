@@ -1,0 +1,110 @@
+---
+- name: Ping
+  hosts: CHAT
+
+  tasks:
+
+  - name: Ping to CHAT
+    ping:
+
+- name: Update repository
+  hosts: CHAT
+
+  tasks:
+  - name: apt update
+    shell: 'apt-get update'
+
+- name: Stop RocketChat
+  hosts: CHAT
+
+  tasks:
+  - name: Stop run service RocketChat
+    shell: 'systemctl stop rocketchat'
+
+- name: Show status RocketChat
+  hosts: CHAT
+
+  tasks:
+  - name: Show run status RocketChat
+    shell: 'systemctl status rocketchat'
+    register: result
+  - debug: var=result.stdout_lines
+
+- name: Update npm
+  hosts: CHAT
+
+#  tasks:
+#  - name: Install new version npm
+#    shell: 'npm update -g'
+#    register: result
+#  - debug: var=result.stdout_lines
+  
+#- name: Update nodejs
+#  hosts: CHAT
+
+#  tasks:
+#  - name: Install nodejs version 14.0.0
+#    shell: 'n install 14.0.0'
+#    register: result
+#  - debug: var=result.stdout_lines
+
+- name: Download Rocket.Chat
+  hosts: CHAT
+
+  tasks:
+  - name: Download latest version Rocket.Chat
+    shell:'curl -L https://releases.rocket.chat/latest/download -o /tmp/rocket.chat.tgz'
+
+- name: Unzip
+  hosts: CHAT
+
+  tasks:
+  - name: Unzip new Rocket.Chat
+    shell: 'tar -xzf /tmp/rocket.chat.tgz -C /tmp'
+
+- name: Building new Rocket.Chat
+  hosts: CHAT
+
+  tasks:
+  - name: Create build\bundl Rocket.Chat
+    shell: 'cd /tmp/bundle/programs/server && npm install'
+    register: result
+  - debug: var=result.stdout_lines
+
+- name: Delete old Rocket.Chat
+  host: CHAT
+
+  tasks:
+  - name: Deleting old Rocket.Chat from run directory
+    shell: 'rm -rf /opt/Rocket.Chat'
+
+- name: Copy new build Rocket.Chat
+  hosts: CHAT
+
+  tasks:
+  - name: Copy new Rocket.Chat to run directory /tmp/bundle /opt/Rocket.Chat
+    shell: 'mv /tmp/bundle /opt/Rocket.Chat'
+
+- name: Change owner
+  hosts: CHAT
+
+  tasks:
+  - name: Change owner on rocketchat:rocketchat /opt/Rocket.Chat
+    shell: 'chown -R rocketchat:rocketchat /opt/Rocket.Chat'
+
+- name: Start
+  hosts: CHAT
+
+  tasks:
+  - name: Start new Rocket.Chat
+    shell: 'systemctl start rocketchat'
+
+- name: Status
+  hosts: CHAT
+
+  tasks:
+  - name: Status run new Rocket.Chat
+    shell: 'systemctl status rocketchat'
+    register: result
+  - debug: var=result.stdout_lines
+
